@@ -9,77 +9,145 @@ import {
   SafeAreaView
 } from 'react-native';
 
+const colors = {
+  background: '#F5F1E8',
+  forest: '#405B46',
+  sage: '#829477',
+  lightGreen: '#C8D2BD',
+  brown: '#8A674B',
+  sand: '#C5A98B',
+  cream: '#FFFFFF',
+  text: '#33302D',
+  muted: '#827D70',
+};
+
+const categories = [
+  {
+    icon: '🏡',
+    title: 'Projetos',
+    description: 'Planeje seus ambientes',
+    background: '#E4E9DE',
+  },
+  {
+    icon: '🌿',
+    title: 'Plantas',
+    description: 'Descubra o mundo verde',
+    background: '#DCE5D5',
+  },
+  {
+    icon: '🪴',
+    title: 'Inspirações',
+    description: 'Encontre novas ideias',
+    background: '#EEE3D5',
+  },
+  {
+    icon: '♡',
+    title: 'Favoritos',
+    description: 'Suas referências salvas',
+    background: '#E9E1D7',
+  },
+];
+
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
       <ScrollView showsVerticalScrollIndicator={false}>
+
+        {/* Cabeçalho */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>SEJA BEM-VINDA AO</Text>
+            <Text style={styles.eyebrow}>PAISAGISMO & DESIGN DE INTERIORES</Text>
             <Text style={styles.logo}>lotus.</Text>
           </View>
 
-          <View style={styles.profile}>
+          <TouchableOpacity style={styles.profile}>
             <Text style={styles.profileText}>N</Text>
-          </View>
-        </View>
-
-        <View style={styles.welcome}>
-          <Text style={styles.welcomeTitle}>
-            Seu espaço, sua essência.
-          </Text>
-          <Text style={styles.welcomeText}>
-            Transforme suas ideias em ambientes cheios de vida.
-          </Text>
-
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.mainButtonText}>
-              Explorar projetos →
-            </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Explore o Lotus</Text>
-          <Text style={styles.sectionSubtitle}>
-            Tudo para transformar seus ambientes.
+        {/* Apresentação */}
+        <View style={styles.hero}>
+          <Text style={styles.heroTag}>SEU ESPAÇO, SUA ESSÊNCIA</Text>
+
+          <Text style={styles.heroTitle}>
+            Cultive beleza em cada cantinho.
           </Text>
 
+          <Text style={styles.heroDescription}>
+            Descubra possibilidades, organize suas ideias e transforme
+            ambientes em lugares especiais.
+          </Text>
+
+          <TouchableOpacity style={styles.heroButton}>
+            <Text style={styles.heroButtonText}>
+              Começar agora →
+            </Text>
+          </TouchableOpacity>
+
+          <Text style={styles.heroDecoration}>✳</Text>
+        </View>
+
+        {/* Categorias */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>Explore o Lotus</Text>
+              <Text style={styles.sectionSubtitle}>
+                Tudo começa com uma ideia.
+              </Text>
+            </View>
+            <Text style={styles.leaf}>❧</Text>
+          </View>
+
           <View style={styles.grid}>
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.optionIcon}>🏡</Text>
-              <Text style={styles.optionTitle}>Projetos</Text>
-              <Text style={styles.optionText}>Organize suas ideias</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.optionIcon}>🌿</Text>
-              <Text style={styles.optionTitle}>Plantas</Text>
-              <Text style={styles.optionText}>Descubra o verde</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.optionIcon}>🪴</Text>
-              <Text style={styles.optionTitle}>Inspirações</Text>
-              <Text style={styles.optionText}>Encontre referências</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.option}>
-              <Text style={styles.optionIcon}>♡</Text>
-              <Text style={styles.optionTitle}>Favoritos</Text>
-              <Text style={styles.optionText}>Seus itens salvos</Text>
-            </TouchableOpacity>
+            {categories.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.categoryCard,
+                  { backgroundColor: item.background }
+                ]}
+              >
+                <Text style={styles.categoryIcon}>{item.icon}</Text>
+                <Text style={styles.categoryTitle}>{item.title}</Text>
+                <Text style={styles.categoryDescription}>
+                  {item.description}
+                </Text>
+                <Text style={styles.cardArrow}>↗</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
+        {/* Inspiração */}
+        <View style={styles.inspiration}>
+          <Text style={styles.inspirationLabel}>UM TOQUE DE INSPIRAÇÃO</Text>
+
+          <Text style={styles.inspirationTitle}>
+            A natureza também faz parte da decoração.
+          </Text>
+
+          <Text style={styles.inspirationDescription}>
+            Pequenos detalhes podem transformar completamente um ambiente.
+            Aposte em plantas, texturas naturais e iluminação aconchegante.
+          </Text>
+
+          <Text style={styles.inspirationIcon}>🌱</Text>
+        </View>
+
+        {/* Rodapé */}
         <View style={styles.footer}>
           <Text style={styles.footerLogo}>lotus.</Text>
           <Text style={styles.footerText}>
             Cultive ideias. Transforme espaços.
           </Text>
+          <Text style={styles.footerCopyright}>
+            FEITO PARA FLORESCER ♡
+          </Text>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -88,123 +156,229 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF7F2',
+    backgroundColor: colors.background,
   },
+
   header: {
     paddingHorizontal: 25,
-    paddingTop: 25,
-    paddingBottom: 20,
+    paddingTop: 22,
+    paddingBottom: 24,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  greeting: {
-    fontSize: 10,
+
+  eyebrow: {
+    fontSize: 9,
     letterSpacing: 2,
-    color: '#987A7C',
+    color: colors.brown,
   },
+
   logo: {
-    fontSize: 38,
-    color: '#78394A',
+    fontSize: 39,
     fontWeight: 'bold',
+    color: colors.forest,
+    letterSpacing: -2,
   },
+
   profile: {
     width: 43,
     height: 43,
     borderRadius: 25,
-    backgroundColor: '#EBD9D7',
+    backgroundColor: colors.lightGreen,
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   profileText: {
-    color: '#78394A',
-    fontSize: 18,
+    color: colors.forest,
+    fontSize: 17,
     fontWeight: 'bold',
   },
-  welcome: {
-    backgroundColor: '#78394A',
+
+  hero: {
+    backgroundColor: colors.forest,
     marginHorizontal: 20,
-    marginTop: 15,
-    padding: 25,
-    borderRadius: 20,
+    padding: 27,
+    borderRadius: 22,
+    overflow: 'hidden',
   },
-  welcomeTitle: {
-    color: '#FFF9F5',
-    fontSize: 27,
+
+  heroTag: {
+    color: colors.lightGreen,
+    fontSize: 10,
+    letterSpacing: 2,
+    marginBottom: 17,
+  },
+
+  heroTitle: {
+    color: colors.cream,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 12,
+    lineHeight: 37,
+    maxWidth: 310,
   },
-  welcomeText: {
-    color: '#F1DFDF',
-    fontSize: 14,
-    lineHeight: 22,
+
+  heroDescription: {
+    color: '#E1E7DC',
+    fontSize: 13,
+    lineHeight: 21,
+    marginTop: 13,
+    maxWidth: 320,
   },
-  mainButton: {
-    backgroundColor: '#FBF2EC',
-    padding: 14,
-    borderRadius: 10,
+
+  heroButton: {
+    backgroundColor: colors.background,
+    paddingVertical: 13,
+    paddingHorizontal: 18,
+    borderRadius: 9,
     alignSelf: 'flex-start',
-    marginTop: 25,
+    marginTop: 23,
   },
-  mainButtonText: {
-    color: '#78394A',
+
+  heroButtonText: {
+    color: colors.forest,
+    fontSize: 12,
     fontWeight: 'bold',
   },
+
+  heroDecoration: {
+    position: 'absolute',
+    color: '#FFFFFF',
+    opacity: 0.10,
+    fontSize: 150,
+    right: 5,
+    bottom: -48,
+  },
+
   section: {
     paddingHorizontal: 22,
-    marginTop: 35,
+    marginTop: 36,
   },
-  sectionTitle: {
-    fontSize: 23,
-    color: '#542635',
-    fontWeight: 'bold',
-  },
-  sectionSubtitle: {
-    color: '#987A7C',
-    fontSize: 13,
-    marginTop: 6,
+
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
   },
+
+  sectionTitle: {
+    fontSize: 23,
+    color: colors.text,
+    fontWeight: 'bold',
+  },
+
+  sectionSubtitle: {
+    fontSize: 12,
+    color: colors.muted,
+    marginTop: 5,
+  },
+
+  leaf: {
+    fontSize: 32,
+    color: colors.sage,
+  },
+
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  option: {
-    backgroundColor: '#FFFFFF',
+
+  categoryCard: {
     width: '48%',
-    padding: 18,
-    borderRadius: 15,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#F0E5E0',
+    minHeight: 155,
+    padding: 17,
+    borderRadius: 16,
+    marginBottom: 13,
+    justifyContent: 'center',
   },
-  optionIcon: {
+
+  categoryIcon: {
     fontSize: 27,
-    marginBottom: 14,
+    marginBottom: 13,
   },
-  optionTitle: {
-    color: '#542635',
+
+  categoryTitle: {
+    color: colors.forest,
     fontSize: 16,
     fontWeight: 'bold',
   },
-  optionText: {
-    color: '#987A7C',
+
+  categoryDescription: {
+    color: colors.muted,
     fontSize: 11,
     marginTop: 5,
   },
+
+  cardArrow: {
+    position: 'absolute',
+    right: 15,
+    top: 14,
+    color: colors.brown,
+    fontSize: 17,
+  },
+
+  inspiration: {
+    backgroundColor: '#E8E0D3',
+    marginHorizontal: 20,
+    marginTop: 22,
+    padding: 23,
+    borderRadius: 18,
+    overflow: 'hidden',
+  },
+
+  inspirationLabel: {
+    color: colors.brown,
+    fontSize: 9,
+    letterSpacing: 2,
+  },
+
+  inspirationTitle: {
+    color: colors.forest,
+    fontSize: 22,
+    fontWeight: 'bold',
+    lineHeight: 29,
+    marginTop: 13,
+    maxWidth: 290,
+  },
+
+  inspirationDescription: {
+    color: colors.text,
+    fontSize: 12,
+    lineHeight: 20,
+    marginTop: 10,
+    maxWidth: 300,
+  },
+
+  inspirationIcon: {
+    fontSize: 45,
+    marginTop: 15,
+  },
+
   footer: {
     alignItems: 'center',
-    padding: 35,
+    paddingTop: 38,
+    paddingBottom: 30,
   },
+
   footerLogo: {
-    fontSize: 25,
-    color: '#78394A',
+    color: colors.forest,
+    fontSize: 28,
     fontWeight: 'bold',
   },
+
   footerText: {
-    color: '#987A7C',
+    color: colors.muted,
     fontSize: 11,
     marginTop: 5,
+  },
+
+  footerCopyright: {
+    color: colors.brown,
+    fontSize: 8,
+    letterSpacing: 2,
+    marginTop: 15,
   },
 });
