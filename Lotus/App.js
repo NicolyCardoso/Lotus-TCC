@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,6 +17,7 @@ import {
   salvarProjetos,
   carregarProjetos,
 } from './storage';
+
 
 const C = {
   fundo: '#F5F3EC',
@@ -90,6 +92,43 @@ const plantas = [
     luz: 'Luz indireta',
     rega: 'Manter o substrato levemente úmido.',
     simbolo: '🌼',
+  },
+];
+
+
+// Plantas iniciais do catálogo da tela Plantas
+const plantasIniciais = [
+  {
+    id: '1',
+    nome: 'Costela-de-adão',
+    categoria: 'Internas',
+    luz: 'Luz indireta',
+    agua: '1 a 2 vezes por semana',
+    imagem: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?w=600',
+  },
+  {
+    id: '2',
+    nome: 'Jiboia',
+    categoria: 'Fáceis de cuidar',
+    luz: 'Meia-sombra',
+    agua: 'Quando o solo estiver seco',
+    imagem: 'https://images.unsplash.com/photo-1614594895304-fe7116ac3b47?w=600',
+  },
+  {
+    id: '3',
+    nome: 'Espada-de-são-jorge',
+    categoria: 'Fáceis de cuidar',
+    luz: 'Sol ou meia-sombra',
+    agua: 'Pouca água',
+    imagem: 'https://images.unsplash.com/photo-1593482892290-f54927ae2b3d?w=600',
+  },
+  {
+    id: '4',
+    nome: 'Lírio-da-paz',
+    categoria: 'Internas',
+    luz: 'Luz indireta',
+    agua: 'Manter o solo úmido',
+    imagem: 'https://images.unsplash.com/photo-1593691509543-c55fb32e5cee?w=600',
   },
 ];
 
@@ -740,17 +779,20 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      <ScrollView
-        key={tela}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {tela === 'inicio' && <Inicio />}
-        {tela === 'projetos' && <Projetos />}
-        {tela === 'inspiracoes' && <Inspiracoes />}
-        {tela === 'plantas' && <Plantas />}
-        {tela === 'perfil' && <Perfil />}
-      </ScrollView>
+      {tela === 'plantas' ? (
+        <PlantasScreen onVoltar={() => navegar('inicio')} />
+      ) : (
+        <ScrollView
+          key={tela}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {tela === 'inicio' && <Inicio />}
+          {tela === 'projetos' && <Projetos />}
+          {tela === 'inspiracoes' && <Inspiracoes />}
+          {tela === 'perfil' && <Perfil />}
+        </ScrollView>
+      )}
 
       <View style={styles.nav}>
         {paginas.map((pagina) => (
@@ -1497,5 +1539,768 @@ const styles = StyleSheet.create({
   navAtivo: {
     color: C.verde,
     fontWeight: 'bold',
+  },
+});
+
+
+// TELA DE PLANTAS INTEGRADA AO APLICATIVO LOTUS
+function PlantasScreen({ onVoltar }) {
+  const [plantas, setPlantas] = useState(plantasIniciais);
+  const [busca, setBusca] = useState('');
+  const [categoriaAtiva, setCategoriaAtiva] = useState('Todas');
+
+  const [nome, setNome] = useState('');
+  const [categoria, setCategoria] = useState('Internas');
+  const [luz, setLuz] = useState('');
+  const [agua, setAgua] = useState('');
+
+  const categorias = [
+    'Todas',
+    'Internas',
+    'Externas',
+    'Fáceis de cuidar',
+  ];
+
+  const plantasFiltradas = plantas.filter((planta) => {
+    const correspondeNome = planta.nome
+      .toLowerCase()
+      .includes(busca.toLowerCase());
+
+    const correspondeCategoria =
+      categoriaAtiva === 'Todas' ||
+      planta.categoria === categoriaAtiva;
+
+    return correspondeNome && correspondeCategoria;
+  });
+
+  function adicionarPlanta() {
+    if (!nome.trim() || !luz.trim() || !agua.trim()) {
+      Alert.alert(
+        'Faltam informações',
+        'Preencha o nome, a iluminação e os cuidados com a água.'
+      );
+      return;
+    }
+
+    const novaPlanta = {
+      id: Date.now().toString(),
+      nome: nome.trim(),
+      categoria,
+      luz: luz.trim(),
+      agua: agua.trim(),
+      imagem: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600',
+    };
+
+    setPlantas((lista) => [...lista, novaPlanta]);
+
+    setNome('');
+    setLuz('');
+    setAgua('');
+
+    Alert.alert(
+      'Planta adicionada!',
+      'Sua nova planta foi incluída no catálogo.'
+    );
+  }
+
+  function excluirPlanta(id) {
+    Alert.alert(
+      'Excluir planta',
+      'Deseja realmente remover esta planta?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => {
+            setPlantas((lista) =>
+              lista.filter((planta) => planta.id !== id)
+            );
+          },
+        },
+      ]
+    );
+  }
+
+  function campoCategoria(item) {
+    return (
+      <TouchableOpacity
+        key={item}
+        style={[
+          plantasStyles.filtro,
+          categoriaAtiva === item && plantasStyles.filtroAtivo,
+        ]}
+        onPress={() => setCategoriaAtiva(item)}
+      >
+        <Text
+          style={[
+            plantasStyles.filtroTexto,
+            categoriaAtiva === item && plantasStyles.filtroTextoAtivo,
+          ]}
+        >
+          {item}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <ScrollView
+      style={plantasStyles.container}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* CABEÇALHO */}
+
+      <View style={plantasStyles.header}>
+        <View>
+          <Text style={plantasStyles.headerLegenda}>
+            PAISAGISMO & DESIGN DE INTERIORES
+          </Text>
+
+          <Text style={plantasStyles.logo}>
+            lotus<Text style={plantasStyles.ponto}>.</Text>
+          </Text>
+        </View>
+
+        <View style={plantasStyles.avatar}>
+          <Text style={plantasStyles.avatarTexto}>L</Text>
+        </View>
+      </View>
+
+      <View style={plantasStyles.conteudo}>
+
+        <TouchableOpacity
+          style={plantasStyles.voltar}
+          onPress={onVoltar}
+        >
+          <Text style={plantasStyles.voltarTexto}>
+            ← Voltar ao início
+          </Text>
+        </TouchableOpacity>
+
+        {/* TÍTULO */}
+
+        <Text style={plantasStyles.etiqueta}>
+          DESCUBRA O MUNDO VERDE
+        </Text>
+
+        <Text style={plantasStyles.titulo}>
+          Universo das plantas
+        </Text>
+
+        <Text style={plantasStyles.descricao}>
+          Conheça espécies, descubra cuidados e encontre
+          a planta ideal para transformar seu espaço.
+        </Text>
+
+        {/* DESTAQUE */}
+
+        <View style={plantasStyles.hero}>
+          <Text style={plantasStyles.heroEmoji}>🌿</Text>
+
+          <Text style={plantasStyles.heroTitulo}>
+            Um novo jeito de cultivar vida.
+          </Text>
+
+          <Text style={plantasStyles.heroDescricao}>
+            Pequenos detalhes verdes podem transformar
+            qualquer ambiente em um lugar especial.
+          </Text>
+
+          <Text style={plantasStyles.heroNumero}>01 / 04</Text>
+        </View>
+
+        {/* PESQUISA */}
+
+        <Text style={plantasStyles.secaoTitulo}>
+          Encontre sua planta
+        </Text>
+
+        <TextInput
+          style={plantasStyles.pesquisa}
+          placeholder="⌕  Buscar plantas..."
+          placeholderTextColor={C.cinza}
+          value={busca}
+          onChangeText={setBusca}
+        />
+
+        {/* CATEGORIAS */}
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={plantasStyles.categorias}
+        >
+          {categorias.map(campoCategoria)}
+        </ScrollView>
+
+        {/* CATÁLOGO */}
+
+        <View style={plantasStyles.listaTopo}>
+          <View>
+            <Text style={plantasStyles.secaoTitulo}>
+              Espécies em destaque
+            </Text>
+
+            <Text style={plantasStyles.listaDescricao}>
+              Encontre sua próxima companheira verde.
+            </Text>
+          </View>
+
+          <View style={plantasStyles.contador}>
+            <Text style={plantasStyles.contadorTexto}>
+              {plantasFiltradas.length}
+            </Text>
+          </View>
+        </View>
+
+        <View style={plantasStyles.grade}>
+          {plantasFiltradas.map((planta) => (
+            <View key={planta.id} style={plantasStyles.cardPlanta}>
+
+              <Image
+                source={{ uri: planta.imagem }}
+                style={plantasStyles.imagemPlanta}
+                resizeMode="cover"
+              />
+
+              <View style={plantasStyles.cardConteudo}>
+                <Text style={plantasStyles.plantaCategoria}>
+                  {planta.categoria.toUpperCase()}
+                </Text>
+
+                <Text style={plantasStyles.plantaNome}>
+                  {planta.nome}
+                </Text>
+
+                <Text style={plantasStyles.cuidado}>
+                  ☀ {planta.luz}
+                </Text>
+
+                <Text style={plantasStyles.cuidado}>
+                  💧 {planta.agua}
+                </Text>
+
+                <TouchableOpacity
+                  style={plantasStyles.botaoExcluir}
+                  onPress={() => excluirPlanta(planta.id)}
+                >
+                  <Text style={plantasStyles.botaoExcluirTexto}>
+                    Remover planta ×
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {plantasFiltradas.length === 0 && (
+          <View style={plantasStyles.vazio}>
+            <Text style={plantasStyles.vazioEmoji}>🍃</Text>
+            <Text style={plantasStyles.vazioTitulo}>
+              Nenhuma planta encontrada.
+            </Text>
+            <Text style={plantasStyles.vazioDescricao}>
+              Tente pesquisar por outro nome ou categoria.
+            </Text>
+          </View>
+        )}
+
+        {/* CADASTRO */}
+
+        <View style={plantasStyles.formulario}>
+          <Text style={plantasStyles.formEtiqueta}>
+            SUA COLEÇÃO VERDE
+          </Text>
+
+          <Text style={plantasStyles.formTitulo}>
+            Adicione uma nova planta
+          </Text>
+
+          <Text style={plantasStyles.formDescricao}>
+            Cadastre novas espécies e organize seu próprio
+            catálogo de plantas.
+          </Text>
+
+          <Text style={plantasStyles.label}>
+            Nome da planta *
+          </Text>
+
+          <TextInput
+            style={plantasStyles.input}
+            placeholder="Ex.: Samambaia"
+            placeholderTextColor={C.cinza}
+            value={nome}
+            onChangeText={setNome}
+          />
+
+          <Text style={plantasStyles.label}>
+            Categoria
+          </Text>
+
+          <View style={plantasStyles.opcoes}>
+            {categorias.slice(1).map((item) => (
+              <TouchableOpacity
+                key={item}
+                style={[
+                  plantasStyles.opcao,
+                  categoria === item && plantasStyles.opcaoAtiva,
+                ]}
+                onPress={() => setCategoria(item)}
+              >
+                <Text
+                  style={[
+                    plantasStyles.opcaoTexto,
+                    categoria === item && plantasStyles.opcaoTextoAtivo,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={plantasStyles.label}>
+            Iluminação *
+          </Text>
+
+          <TextInput
+            style={plantasStyles.input}
+            placeholder="Ex.: Luz indireta"
+            placeholderTextColor={C.cinza}
+            value={luz}
+            onChangeText={setLuz}
+          />
+
+          <Text style={plantasStyles.label}>
+            Cuidados com a água *
+          </Text>
+
+          <TextInput
+            style={plantasStyles.input}
+            placeholder="Ex.: Regar duas vezes por semana"
+            placeholderTextColor={C.cinza}
+            value={agua}
+            onChangeText={setAgua}
+          />
+
+          <TouchableOpacity
+            style={plantasStyles.botaoCriar}
+            onPress={adicionarPlanta}
+          >
+            <Text style={plantasStyles.botaoCriarTexto}>
+              + Adicionar planta
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* RODAPÉ */}
+
+        <View style={plantasStyles.rodape}>
+          <Text style={plantasStyles.rodapeLogo}>lotus.</Text>
+
+          <Text style={plantasStyles.rodapeTexto}>
+            Cultive ideias. Transforme espaços.
+          </Text>
+
+          <Text style={plantasStyles.rodapeFinal}>
+            FEITO PARA FLORESCER ♡
+          </Text>
+        </View>
+
+      </View>
+    </ScrollView>
+  );
+}
+
+const plantasStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: C.fundo,
+  },
+
+  header: {
+    paddingHorizontal: 25,
+    paddingTop: 17,
+    paddingBottom: 23,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  headerLegenda: {
+    color: C.marrom,
+    fontSize: 9,
+    letterSpacing: 2,
+  },
+
+  logo: {
+    color: C.verde,
+    fontSize: 39,
+    fontWeight: 'bold',
+    letterSpacing: -2,
+  },
+
+  ponto: {
+    color: C.marrom,
+  },
+
+  avatar: {
+    width: 43,
+    height: 43,
+    borderRadius: 24,
+    backgroundColor: C.verdeClaro,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  avatarTexto: {
+    color: C.verde,
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+
+  conteudo: {
+    paddingHorizontal: 22,
+    paddingBottom: 35,
+  },
+
+  voltar: {
+    marginBottom: 22,
+  },
+
+  voltarTexto: {
+    color: C.verde,
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+
+  etiqueta: {
+    color: C.marrom,
+    fontSize: 9,
+    letterSpacing: 2,
+  },
+
+  titulo: {
+    color: C.verde,
+    fontSize: 31,
+    fontWeight: 'bold',
+    marginTop: 9,
+  },
+
+  descricao: {
+    color: C.cinza,
+    fontSize: 13,
+    lineHeight: 21,
+    marginTop: 9,
+    marginBottom: 22,
+  },
+
+  hero: {
+    backgroundColor: C.verde,
+    padding: 23,
+    borderRadius: 19,
+    minHeight: 190,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: 30,
+  },
+
+  heroEmoji: {
+    fontSize: 30,
+    marginBottom: 12,
+  },
+
+  heroTitulo: {
+    color: C.branco,
+    fontSize: 23,
+    fontWeight: 'bold',
+    maxWidth: 260,
+  },
+
+  heroDescricao: {
+    color: '#E4E9DF',
+    fontSize: 12,
+    lineHeight: 19,
+    marginTop: 9,
+    maxWidth: 280,
+  },
+
+  heroNumero: {
+    color: '#D5DFCE',
+    fontSize: 9,
+    letterSpacing: 2,
+    marginTop: 15,
+    alignSelf: 'flex-end',
+  },
+
+  secaoTitulo: {
+    color: C.texto,
+    fontSize: 19,
+    fontWeight: 'bold',
+  },
+
+  pesquisa: {
+    backgroundColor: C.branco,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: C.linha,
+    padding: 14,
+    marginTop: 14,
+    color: C.texto,
+    fontSize: 13,
+  },
+
+  categorias: {
+    marginTop: 16,
+    marginBottom: 27,
+  },
+
+  filtro: {
+    backgroundColor: C.verdeClaro,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+
+  filtroAtivo: {
+    backgroundColor: C.verde,
+  },
+
+  filtroTexto: {
+    color: C.verde,
+    fontSize: 11,
+    fontWeight: '600',
+  },
+
+  filtroTextoAtivo: {
+    color: C.branco,
+  },
+
+  listaTopo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+
+  listaDescricao: {
+    color: C.cinza,
+    fontSize: 11,
+    marginTop: 5,
+  },
+
+  contador: {
+    backgroundColor: C.verdeClaro,
+    width: 34,
+    height: 34,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  contadorTexto: {
+    color: C.verde,
+    fontWeight: 'bold',
+  },
+
+  grade: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+
+  cardPlanta: {
+    width: '48%',
+    backgroundColor: C.branco,
+    borderRadius: 15,
+    marginBottom: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: C.linha,
+  },
+
+  imagemPlanta: {
+    width: '100%',
+    height: 125,
+    backgroundColor: C.verdeClaro,
+  },
+
+  cardConteudo: {
+    padding: 11,
+  },
+
+  plantaCategoria: {
+    color: C.marrom,
+    fontSize: 8,
+    letterSpacing: 1,
+  },
+
+  plantaNome: {
+    color: C.verde,
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 5,
+    marginBottom: 8,
+  },
+
+  cuidado: {
+    color: C.cinza,
+    fontSize: 9,
+    marginTop: 5,
+  },
+
+  botaoExcluir: {
+    borderTopWidth: 1,
+    borderTopColor: C.linha,
+    marginTop: 12,
+    paddingTop: 9,
+  },
+
+  botaoExcluirTexto: {
+    color: '#A45C4E',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+
+  vazio: {
+    backgroundColor: C.areia,
+    padding: 25,
+    borderRadius: 15,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  vazioEmoji: {
+    fontSize: 32,
+  },
+
+  vazioTitulo: {
+    color: C.verde,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+
+  vazioDescricao: {
+    color: C.cinza,
+    fontSize: 11,
+    marginTop: 6,
+    textAlign: 'center',
+  },
+
+  formulario: {
+    backgroundColor: C.verdeClaro,
+    padding: 19,
+    borderRadius: 18,
+    marginTop: 25,
+  },
+
+  formEtiqueta: {
+    color: C.marrom,
+    fontSize: 9,
+    letterSpacing: 2,
+  },
+
+  formTitulo: {
+    color: C.verde,
+    fontSize: 21,
+    fontWeight: 'bold',
+    marginTop: 9,
+  },
+
+  formDescricao: {
+    color: C.cinza,
+    fontSize: 12,
+    lineHeight: 19,
+    marginTop: 7,
+  },
+
+  label: {
+    color: C.texto,
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginTop: 17,
+    marginBottom: 8,
+  },
+
+  input: {
+    backgroundColor: C.branco,
+    borderWidth: 1,
+    borderColor: C.linha,
+    borderRadius: 10,
+    padding: 13,
+    color: C.texto,
+    fontSize: 13,
+  },
+
+  opcoes: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 7,
+  },
+
+  opcao: {
+    backgroundColor: C.branco,
+    borderRadius: 18,
+    paddingVertical: 9,
+    paddingHorizontal: 11,
+  },
+
+  opcaoAtiva: {
+    backgroundColor: C.verde,
+  },
+
+  opcaoTexto: {
+    color: C.verde,
+    fontSize: 10,
+  },
+
+  opcaoTextoAtivo: {
+    color: C.branco,
+    fontWeight: 'bold',
+  },
+
+  botaoCriar: {
+    backgroundColor: C.verde,
+    padding: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 22,
+  },
+
+  botaoCriarTexto: {
+    color: C.branco,
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+
+  rodape: {
+    alignItems: 'center',
+    paddingTop: 37,
+    paddingBottom: 20,
+  },
+
+  rodapeLogo: {
+    color: C.verde,
+    fontSize: 29,
+    fontWeight: 'bold',
+  },
+
+  rodapeTexto: {
+    color: C.cinza,
+    fontSize: 11,
+    marginTop: 5,
+  },
+
+  rodapeFinal: {
+    color: C.marrom,
+    fontSize: 8,
+    letterSpacing: 2,
+    marginTop: 14,
   },
 });
